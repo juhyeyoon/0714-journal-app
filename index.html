@@ -764,7 +764,7 @@
         setSaveStatus('Supabase에 저장되었습니다.', 'saved');
       } catch (error) {
         console.warn('Supabase save failed:', error);
-        setSaveStatus('로컬 기록은 저장됐지만 Supabase 저장은 실패했습니다.', 'error');
+        setSaveStatus(`Supabase 저장 실패: ${error.message}`, 'error');
       }
     }
 
