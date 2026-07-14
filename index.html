@@ -757,8 +757,16 @@
         });
 
         if (!response.ok) {
-          const result = await response.json().catch(() => ({}));
-          throw new Error(result.error || '저장에 실패했습니다.');
+          const rawResult = await response.text();
+          let result = {};
+
+          try {
+            result = rawResult ? JSON.parse(rawResult) : {};
+          } catch {
+            result = {};
+          }
+
+          throw new Error(result.error || rawResult || `HTTP ${response.status}`);
         }
 
         setSaveStatus('Supabase에 저장되었습니다.', 'saved');
