@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f5f7">
+  <title>Lucky Pick 6/45</title>
+  <style>
+    :root {
+      --primary: #0066cc;
+      --primary-focus: #0071e3;
+      --primary-on-dark: #2997ff;
+      --ink: #1d1d1f;
+      --muted: #7a7a7a;
+      --muted-dark: #cccccc;
+      --canvas: #ffffff;
+      --parchment: #f5f5f7;
+      --pearl: #fafafc;
+      --tile-dark: #272729;
+      --tile-dark-2: #2a2a2c;
+      --black: #000000;
+      --hairline: #e0e0e0;
+      --product-shadow: rgba(0, 0, 0, 0.22) 3px 5px 30px 0;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { background: var(--parchment); }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      font-family: "SF Pro Text", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--parchment);
+      overflow-x: hidden;
+    }
+
+    button { font: inherit; }
+
+    .global-nav {
+      display: flex;
+      height: 44px;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      background: var(--black);
+    }
+
+    .global-nav-inner {
+      display: flex;
+      width: min(980px, calc(100% - 40px));
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      font-size: 12px;
+      line-height: 1;
+      letter-spacing: -0.12px;
+    }
+
+    .apple-mark {
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: clamp(16px, 3vw, 28px);
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .nav-links span,
+    .nav-tools span {
+      white-space: nowrap;
+    }
+
+    .nav-tools {
+      display: flex;
+      gap: 18px;
+      color: rgba(255, 255, 255, 0.82);
+    }
+
+    .sub-nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      height: 52px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      background: rgba(245, 245, 247, 0.82);
+      backdrop-filter: saturate(180%) blur(20px);
+    }
+
+    .sub-nav-inner {
+      display: flex;
+      width: min(980px, calc(100% - 40px));
+      height: 100%;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0 auto;
+    }
+
+    .product-name {
+      font-family: "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 21px;
+      font-weight: 600;
+      line-height: 1.19;
+      letter-spacing: 0.231px;
+    }
+
+    .sub-actions {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.29;
+      letter-spacing: -0.224px;
+    }
+
+    .small-pill {
+      min-height: 28px;
+      padding: 6px 13px;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 9999px;
+      background: var(--primary);
+    }
+
+    .tile {
+      display: grid;
+      min-height: calc(100vh - 96px);
+      place-items: center;
+      padding: 80px 24px;
+      text-align: center;
+    }
+
+    .tile-inner {
+      width: min(980px, 100%);
+      margin: 0 auto;
+    }
+
+    .hero {
+      background: var(--canvas);
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.29;
+      letter-spacing: -0.224px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: clamp(40px, 6vw, 56px);
+      font-weight: 600;
+      line-height: 1.07;
+      letter-spacing: -0.28px;
+    }
+
+    .intro {
+      max-width: 700px;
+      margin: 18px auto 0;
+      color: var(--ink);
+      font-family: "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: clamp(22px, 3vw, 28px);
+      font-weight: 400;
+      line-height: 1.14;
+      letter-spacing: 0.196px;
+      word-break: keep-all;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .button-primary,
+    .button-secondary {
+      min-height: 44px;
+      padding: 11px 22px;
+      border-radius: 9999px;
+      font-size: 17px;
+      font-weight: 400;
+      line-height: 1.47;
+      letter-spacing: -0.374px;
+      cursor: pointer;
+      transition: transform 160ms ease;
+    }
+
+    .button-primary {
+      color: #fff;
+      border: 0;
+      background: var(--primary);
+    }
+
+    .button-secondary {
+      color: var(--primary);
+      border: 1px solid var(--primary);
+      background: transparent;
+    }
+
+    .button-primary:active,
+    .button-secondary:active,
+    .small-pill:active,
+    .clear-button:active {
+      transform: scale(0.95);
+    }
+
+    .button-primary:focus-visible,
+    .button-secondary:focus-visible,
+    .clear-button:focus-visible {
+      outline: 2px solid var(--primary-focus);
+      outline-offset: 3px;
+    }
+
+    .button-primary:disabled {
+      color: rgba(255, 255, 255, 0.78);
+      background: #7a7a7a;
+      cursor: wait;
+    }
+
+    .stage {
+      margin: 52px auto 0;
+    }
+
+    .product-orbit {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(58px, 1fr));
+      gap: 17px;
+      width: min(760px, 100%);
+      margin: 0 auto;
+      padding: 32px;
+      border-radius: 18px;
+      background: var(--pearl);
+      border: 1px solid var(--hairline);
+    }
+
+    .ball {
+      display: grid;
+      aspect-ratio: 1;
+      place-items: center;
+      color: #fff;
+      font-size: clamp(20px, 3vw, 34px);
+      font-weight: 600;
+      letter-spacing: -0.374px;
+      border-radius: 50%;
+      background: var(--ball, #333333);
+      box-shadow: var(--product-shadow);
+      transform: translateY(0);
+    }
+
+    .ball.empty {
+      color: var(--muted);
+      border: 1px solid var(--hairline);
+      background: #fff;
+      box-shadow: none;
+    }
+
+    .ball.pop { animation: pop 520ms cubic-bezier(.2, .85, .3, 1.25) both; }
+
+    .ball.shuffle {
+      color: var(--muted);
+      border: 1px solid var(--hairline);
+      background: #fff;
+      animation: shuffle 420ms linear infinite;
+    }
+
+    .ball.locked {
+      animation: settle 560ms cubic-bezier(.18, .9, .25, 1.2) both;
+    }
+
+    @keyframes pop {
+      0% { opacity: 0; transform: translateY(24px) scale(0.6); }
+      72% { opacity: 1; transform: translateY(-5px) scale(1.07); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
+    @keyframes shuffle {
+      0% { transform: translateY(0) scale(1); }
+      38% { transform: translateY(-8px) scale(1.04); }
+      72% { transform: translateY(7px) scale(0.98); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
+    @keyframes settle {
+      0% { opacity: 0.72; transform: translateY(-20px) scale(0.72); }
+      62% { opacity: 1; transform: translateY(6px) scale(1.1); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 14px;
+      letter-spacing: -0.224px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 9999px;
+      background: var(--primary);
+    }
+
+    .stage.is-drawing .status-dot {
+      animation: pulse 700ms ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.65; }
+      50% { transform: scale(1.55); opacity: 1; }
+    }
+
+    .details {
+      min-height: auto;
+      background: var(--tile-dark);
+      color: #fff;
+    }
+
+    .details h2,
+    .history-tile h2 {
+      margin: 0;
+      font-family: "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: clamp(34px, 5vw, 40px);
+      font-weight: 600;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .details p {
+      max-width: 680px;
+      margin: 14px auto 0;
+      color: var(--muted-dark);
+      font-size: 24px;
+      font-weight: 300;
+      line-height: 1.5;
+      letter-spacing: 0;
+      word-break: keep-all;
+    }
+
+    .feature-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+      margin-top: 44px;
+    }
+
+    .feature-card {
+      padding: 24px;
+      border-radius: 18px;
+      background: #fff;
+      color: var(--ink);
+      text-align: left;
+    }
+
+    .feature-card strong {
+      display: block;
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.24;
+      letter-spacing: -0.374px;
+    }
+
+    .feature-card span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.43;
+      letter-spacing: -0.224px;
+    }
+
+    .history-tile {
+      min-height: auto;
+      background: var(--parchment);
+    }
+
+    .history-shell {
+      display: grid;
+      grid-template-columns: auto auto;
+      justify-content: center;
+      gap: 18px 24px;
+      align-items: center;
+      margin-top: 32px;
+    }
+
+    .history-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .history-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      min-width: 220px;
+      min-height: 92px;
+      padding: 24px;
+      border: 1px solid var(--hairline);
+      border-radius: 18px;
+      background: #fff;
+    }
+
+    .mini-ball {
+      display: grid;
+      width: 28px;
+      height: 28px;
+      place-items: center;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 50%;
+      background: var(--ball);
+      box-shadow: var(--product-shadow);
+    }
+
+    .history-empty {
+      grid-column: 1 / -1;
+      margin: 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.47;
+      letter-spacing: -0.374px;
+    }
+
+    .clear-button {
+      min-height: 36px;
+      padding: 8px 15px;
+      color: #fff;
+      border: 0;
+      border-radius: 8px;
+      background: var(--ink);
+      cursor: pointer;
+      transition: transform 160ms ease;
+    }
+
+    .clear-button[hidden] { display: none; }
+
+    footer {
+      padding: 48px 24px 64px;
+      color: var(--muted);
+      background: var(--parchment);
+      font-size: 12px;
+      line-height: 1.4;
+      letter-spacing: -0.12px;
+      text-align: center;
+    }
+
+    @media (max-width: 833px) {
+      .nav-links span:not(:first-child),
+      .sub-actions span {
+        display: none;
+      }
+
+      .tile { padding: 64px 20px; }
+      .product-orbit { padding: 24px; gap: 12px; }
+      .feature-row,
+      .history-list {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .global-nav-inner,
+      .sub-nav-inner {
+        width: min(100% - 28px, 980px);
+      }
+
+      .nav-tools span:first-child { display: none; }
+      .tile { padding: 48px 14px; }
+      h1 { font-size: 34px; }
+      .intro { font-size: 21px; }
+      .product-orbit {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .history-shell {
+        grid-template-columns: 1fr;
+      }
+      .history-row { min-width: 0; }
+    }
+
+    @media (max-width: 419px) {
+      h1 { font-size: 28px; }
+      .intro { font-size: 18px; }
+      .product-orbit { padding: 16px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="global-nav" aria-label="전체 탐색">
+    <div class="global-nav-inner">
+      <span class="apple-mark" aria-hidden="true">◌</span>
+      <div class="nav-links">
+        <span>Store</span>
+        <span>Luck</span>
+        <span>Numbers</span>
+        <span>Support</span>
+      </div>
+      <div class="nav-tools">
+        <span>Search</span>
+        <span>Bag</span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="sub-nav">
+    <div class="sub-nav-inner">
+      <span class="product-name">Lucky Pick 6/45</span>
+      <div class="sub-actions">
+        <span>개요</span>
+        <span>최근 추첨</span>
+        <a class="small-pill" href="#draw">뽑기</a>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <section class="tile hero" id="draw" aria-labelledby="main-title">
+      <div class="tile-inner">
+        <p class="eyebrow">새로운 행운 번호를 만나는 가장 조용한 방식.</p>
+        <h1 id="main-title">Lucky numbers, beautifully drawn.</h1>
+        <p class="intro">버튼 하나로 1부터 45까지, 중복 없는 여섯 번호를 부드럽게 공개합니다.</p>
+
+        <div class="hero-actions">
+          <button class="button-primary" id="drawButton" type="button">
+            <span id="buttonText">행운 번호 뽑기</span>
+          </button>
+          <button class="button-secondary" type="button" onclick="document.getElementById('history-section').scrollIntoView({ behavior: 'smooth' })">
+            최근 기록 보기
+          </button>
+        </div>
+
+        <div class="stage" id="machine">
+          <div class="product-orbit" id="balls" aria-live="polite" aria-label="추천 번호">
+            <span class="ball empty">?</span>
+            <span class="ball empty">?</span>
+            <span class="ball empty">?</span>
+            <span class="ball empty">?</span>
+            <span class="ball empty">?</span>
+            <span class="ball empty">?</span>
+          </div>
+          <div class="status-row">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span id="liveStatus">READY</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tile details" aria-labelledby="details-title">
+      <div class="tile-inner">
+        <h2 id="details-title">필요한 건 여섯 개의 숫자뿐.</h2>
+        <p>복잡한 장식은 덜어내고, 추첨 순간과 결과가 또렷하게 보이도록 구성했습니다.</p>
+        <div class="feature-row">
+          <div class="feature-card">
+            <strong>Secure random</strong>
+            <span>지원되는 브라우저에서는 crypto 기반 난수를 사용합니다.</span>
+          </div>
+          <div class="feature-card">
+            <strong>One set</strong>
+            <span>1부터 45까지 중복 없이 여섯 번호를 정렬해 보여줍니다.</span>
+          </div>
+          <div class="feature-card">
+            <strong>Local history</strong>
+            <span>최근 3회 추첨 결과를 이 기기에만 저장합니다.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tile history-tile" id="history-section" aria-labelledby="history-title">
+      <div class="tile-inner">
+        <h2 id="history-title">최근 추첨</h2>
+        <div class="history-shell">
+          <div id="historyContainer">
+            <p class="history-empty">아직 뽑은 번호가 없어요.</p>
+          </div>
+          <button class="clear-button" id="clearButton" type="button" hidden>기록 지우기</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    번호는 무작위로 생성되며 당첨을 보장하지 않습니다. 디자인은 DESIGN-apple.md의 색상, 타이포그래피, 버튼, 타일 리듬을 기준으로 반영했습니다.
+  </footer>
+
+  <script>
+    const machine = document.getElementById('machine');
+    const balls = document.getElementById('balls');
+    const drawButton = document.getElementById('drawButton');
+    const buttonText = document.getElementById('buttonText');
+    const liveStatus = document.getElementById('liveStatus');
+    const historyContainer = document.getElementById('historyContainer');
+    const clearButton = document.getElementById('clearButton');
+    const HISTORY_KEY = 'apple-lotto-history';
+
+    let history = loadHistory();
+    let isDrawing = false;
+    let shuffleTimer = null;
+
+    function loadHistory() {
+      try {
+        const stored = JSON.parse(localStorage.getItem(HISTORY_KEY));
+        return Array.isArray(stored) ? stored.slice(0, 3) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveHistory() {
+      try {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+      } catch {
+        // 저장소 사용이 제한된 환경에서도 추첨 기능은 계속 동작합니다.
+      }
+    }
+
+    function secureRandom(max) {
+      if (!window.crypto?.getRandomValues) return Math.floor(Math.random() * max);
+
+      const limit = Math.floor(0x100000000 / max) * max;
+      const value = new Uint32Array(1);
+      do window.crypto.getRandomValues(value); while (value[0] >= limit);
+      return value[0] % max;
+    }
+
+    function drawNumbers() {
+      const pool = Array.from({ length: 45 }, (_, index) => index + 1);
+
+      for (let i = pool.length - 1; i > 0; i -= 1) {
+        const j = secureRandom(i + 1);
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+
+      return pool.slice(0, 6).sort((a, b) => a - b);
+    }
+
+    function ballColor(number) {
+      if (number <= 10) return '#f5c542';
+      if (number <= 20) return '#0066cc';
+      if (number <= 30) return '#86868b';
+      if (number <= 40) return '#1d1d1f';
+      return '#34c759';
+    }
+
+    function createBall(text, className = 'ball', color = null) {
+      const ball = document.createElement('span');
+      ball.className = className;
+      ball.textContent = text;
+      if (color) ball.style.setProperty('--ball', color);
+      return ball;
+    }
+
+    function renderShuffleBalls() {
+      const placeholders = Array.from({ length: 6 }, () => secureRandom(45) + 1);
+      balls.replaceChildren(...placeholders.map((number) => (
+        createBall(number.toString().padStart(2, '0'), 'ball shuffle')
+      )));
+      balls.setAttribute('aria-label', '추천 번호 추첨 중');
+    }
+
+    function revealNumbers(numbers) {
+      window.clearInterval(shuffleTimer);
+      balls.replaceChildren(...Array.from({ length: 6 }, () => createBall('?', 'ball shuffle')));
+
+      numbers.forEach((number, index) => {
+        window.setTimeout(() => {
+          balls.children[index].replaceWith(createBall(number, 'ball locked', ballColor(number)));
+          balls.setAttribute('aria-label', `추천 번호 ${numbers.slice(0, index + 1).join(', ')}`);
+        }, index * 180);
+      });
+    }
+
+    function renderHistory() {
+      clearButton.hidden = history.length === 0;
+
+      if (!history.length) {
+        historyContainer.innerHTML = '<p class="history-empty">아직 뽑은 번호가 없어요.</p>';
+        return;
+      }
+
+      const list = document.createElement('ol');
+      list.className = 'history-list';
+      history.forEach((numbers) => {
+        const row = document.createElement('li');
+        row.className = 'history-row';
+        numbers.forEach((number) => {
+          const miniBall = document.createElement('span');
+          miniBall.className = 'mini-ball';
+          miniBall.textContent = number;
+          miniBall.style.setProperty('--ball', ballColor(number));
+          row.appendChild(miniBall);
+        });
+        list.appendChild(row);
+      });
+      historyContainer.replaceChildren(list);
+    }
+
+    function finishDraw(numbers) {
+      history = [numbers, ...history].slice(0, 3);
+      saveHistory();
+      renderHistory();
+      buttonText.textContent = '다시 뽑기';
+      liveStatus.textContent = 'READY';
+      drawButton.disabled = false;
+      machine.classList.remove('is-drawing');
+      isDrawing = false;
+    }
+
+    function handleDraw() {
+      if (isDrawing) return;
+      isDrawing = true;
+      drawButton.disabled = true;
+      machine.classList.add('is-drawing');
+      buttonText.textContent = '번호 공개 중...';
+      liveStatus.textContent = 'DRAWING';
+
+      renderShuffleBalls();
+      shuffleTimer = window.setInterval(renderShuffleBalls, 110);
+
+      window.setTimeout(() => {
+        const numbers = drawNumbers();
+        revealNumbers(numbers);
+        window.setTimeout(() => finishDraw(numbers), 1200);
+      }, 760);
+    }
+
+    drawButton.addEventListener('click', handleDraw);
+    clearButton.addEventListener('click', () => {
+      history = [];
+      saveHistory();
+      renderHistory();
+    });
+
+    renderHistory();
+  </script>
+</body>
+</html>
