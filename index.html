@@ -307,6 +307,23 @@
       letter-spacing: -0.224px;
     }
 
+    .save-status {
+      min-height: 20px;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.3;
+      letter-spacing: -0.12px;
+    }
+
+    .save-status[data-state="saved"] {
+      color: var(--primary);
+    }
+
+    .save-status[data-state="error"] {
+      color: #b00020;
+    }
+
     .status-dot {
       width: 8px;
       height: 8px;
@@ -568,6 +585,7 @@
             <span class="status-dot" aria-hidden="true"></span>
             <span id="liveStatus">READY</span>
           </div>
+          <p class="save-status" id="saveStatus" aria-live="polite"></p>
         </div>
       </div>
     </section>
@@ -586,8 +604,8 @@
             <span>1부터 45까지 중복 없이 여섯 번호를 정렬해 보여줍니다.</span>
           </div>
           <div class="feature-card">
-            <strong>Local history</strong>
-            <span>최근 3회 추첨 결과를 이 기기에만 저장합니다.</span>
+            <strong>Supabase sync</strong>
+            <span>Vercel 환경변수로 연결된 Supabase에 추첨 결과를 저장합니다.</span>
           </div>
         </div>
       </div>
@@ -616,6 +634,7 @@
     const drawButton = document.getElementById('drawButton');
     const buttonText = document.getElementById('buttonText');
     const liveStatus = document.getElementById('liveStatus');
+    const saveStatus = document.getElementById('saveStatus');
     const historyContainer = document.getElementById('historyContainer');
     const clearButton = document.getElementById('clearButton');
     const HISTORY_KEY = 'apple-lotto-history';
@@ -722,10 +741,38 @@
       historyContainer.replaceChildren(list);
     }
 
+    function setSaveStatus(message, state = '') {
+      saveStatus.textContent = message;
+      saveStatus.dataset.state = state;
+    }
+
+    async function saveDrawToDatabase(numbers) {
+      setSaveStatus('Supabase에 저장 중...');
+
+      try {
+        const response = await fetch('/api/draws', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ numbers }),
+        });
+
+        if (!response.ok) {
+          const result = await response.json().catch(() => ({}));
+          throw new Error(result.error || '저장에 실패했습니다.');
+        }
+
+        setSaveStatus('Supabase에 저장되었습니다.', 'saved');
+      } catch (error) {
+        console.warn('Supabase save failed:', error);
+        setSaveStatus('로컬 기록은 저장됐지만 Supabase 저장은 실패했습니다.', 'error');
+      }
+    }
+
     function finishDraw(numbers) {
       history = [numbers, ...history].slice(0, 3);
       saveHistory();
       renderHistory();
+      saveDrawToDatabase(numbers);
       buttonText.textContent = '다시 뽑기';
       liveStatus.textContent = 'READY';
       drawButton.disabled = false;
@@ -740,6 +787,7 @@
       machine.classList.add('is-drawing');
       buttonText.textContent = '번호 공개 중...';
       liveStatus.textContent = 'DRAWING';
+      setSaveStatus('');
 
       renderShuffleBalls();
       shuffleTimer = window.setInterval(renderShuffleBalls, 110);
