@@ -753,6 +753,11 @@
       saveStatus.dataset.state = state;
     }
 
+    function trackAnalyticsEvent(name, params = {}) {
+      if (typeof gtag !== 'function') return;
+      gtag('event', name, params);
+    }
+
     async function saveDrawToDatabase(numbers) {
       setSaveStatus('Supabase에 저장 중...');
 
@@ -788,9 +793,10 @@
       saveHistory();
       renderHistory();
       saveDrawToDatabase(numbers);
-      if (typeof gtag === 'function') {
-        gtag('event', 'lotto_draw', { numbers: numbers.join(',') });
-      }
+      trackAnalyticsEvent('lotto_draw', {
+        numbers: numbers.join(','),
+        draw_count: history.length,
+      });
       buttonText.textContent = '다시 뽑기';
       liveStatus.textContent = 'READY';
       drawButton.disabled = false;
@@ -800,6 +806,9 @@
 
     function handleDraw() {
       if (isDrawing) return;
+      trackAnalyticsEvent('lotto_draw_click', {
+        button_text: buttonText.textContent.trim(),
+      });
       isDrawing = true;
       drawButton.disabled = true;
       machine.classList.add('is-drawing');
